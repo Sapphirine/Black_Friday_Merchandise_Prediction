@@ -1,0 +1,242 @@
+- Overview
+
+- Technologies Used
+
+- Dataset Overview
+
+- Challenges / Struggles
+
+- Findings
+
+- Demos
+
+- Conclusion
+
+- Next Steps
+
+data preparation:
+hdfs dfs -mkdir /user/project
+hadoop fs -put train.csv /user/project/
+
+CREATE TABLE BlackFriday(User_ID int, Product_ID int, Gender string, Age string, Occupation int, City_Category string, Stay_In_Current_City_Years string, Marital_Status int, Product_Category_1 int, Product_Category_2 int, Product_Category_3 int,Purchase int) row format delimited fields terminated by ',' stored as textfile;
+
+describe blackfriday;
+OK
+user_id             	int                 	                    
+product_id          	string              	                    
+gender              	string              	                    
+age                 	string              	                    
+occupation          	int                 	                    
+city_category       	string              	                    
+stay_in_current_city_years	string              	                    
+marital_status      	int                 	                    
+product_category_1  	int                 	                    
+product_category_2  	int                 	                    
+product_category_3  	int                 	                    
+purchase            	int 
+
+LOAD DATA INPATH '/user/project/train.csv' INTO TABLE blackfriday;
+Loading data to table default.blackfriday
+
+Queries:
+1. average female purchase and male purchase
+SELECT avg(purchase) FROM blackfriday WHERE gender="F";
+SELECT avg(purchase) FROM blackfriday WHERE gender="M";
+SELECT gender, sum(purchase) AS sumPurchase FROM blackfriday GROUP BY gender ORDER BY sumPurchase DESC;
+SELECT gender, COUNT(*) AS sumPurchase FROM blackfriday GROUP BY gender ORDER BY sumPurchase DESC;
+
+2. rank of age purchase
+SELECT age, COUNT(*) AS agenum FROM blackfriday GROUP BY age ORDER BY agenum DESC;
+3. rank of occupation purchase
+SELECT occupation, sum(purchase) AS avgPurchase FROM blackfriday GROUP BY occupation ORDER BY avgPurchase DESC;
+SELECT occupation, count(purchase) AS avgPurchase FROM blackfriday GROUP BY occupation ORDER BY avgPurchase DESC;
+
+4. rank of city category purchase
+SELECT city_category, sum(purchase) AS avgPurchase FROM blackfriday GROUP BY city_category ORDER BY avgPurchase DESC;
+5. married & single purchase amount per person
+SELECT marital_status, avg(purchase) AS avgPurchase FROM blackfriday GROUP BY marital_status ORDER BY avgPurchase DESC;
+SELECT marital_status, sum(purchase) AS avgPurchase FROM blackfriday GROUP BY marital_status ORDER BY avgPurchase DESC;
+7. rank of product ID
+SELECT product_id, sum(purchase) AS sumPurchase FROM blackfriday GROUP BY product_id ORDER BY sumPurchase DESC LIMIT 10;
+8. product category ranks total
+SELECT product_category_1, COUNT(*) AS sumPurchase FROM blackfriday GROUP BY product_category_1 ORDER BY sumPurchase DESC;
+9. product category ranks by ages/gender/occupation
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="26-35" GROUP BY product_category_1 ORDER BY catCount DESC;
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="36-45" GROUP BY product_category_1 ORDER BY catCount DESC;
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="0-17" GROUP BY product_category_1 ORDER BY catCount DESC;
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="55+" GROUP BY product_category_1 ORDER BY catCount DESC;
+
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE gender="F" GROUP BY product_category_1 ORDER BY catCount DESC;
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE gender="M" GROUP BY product_category_1 ORDER BY catCount DESC;
+
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE occupation=4 GROUP BY product_category_1 ORDER BY catCount DESC;
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE occupation=0 GROUP BY product_category_1 ORDER BY catCount DESC;
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE occupation=7 GROUP BY product_category_1 ORDER BY catCount DESC;
+
+results:
+1.
+female average 8734.565765155476
+male average 9437.526040472265
+sum:
+M	3909580100
+F	1186232642
+count:
+M	414259
+F	135809
+2.
+26-35	219587
+36-45	110013
+18-25	99660
+46-50	45701
+51-55	38501
+55+	21504
+0-17	15102
+
+3.
+4	666244484
+0	635406958
+7	557371587
+1	424614144
+17	393281453
+12	305449446
+20	296570442
+14	259454692
+16	238346955
+2	238028583
+6	188416784
+3	162002168
+15	118960211
+10	115844465
+5	113649759
+11	106751618
+19	73700617
+13	71919481
+18	60721461
+9	54340046
+8	14737388
+
+4.
+B	2115533605
+C	1663807476
+A	1316471661
+
+5. 
+avg:
+0	9265.907618921507
+1	9261.174574082374
+sum:
+0	3008927447
+1	2086885295
+
+7.
+P00025442	27995166
+P00110742	26722309
+P00255842	25168963
+P00059442	24338343
+P00184942	24334887
+P00112142	24216006
+P00110942	23639564
+P00237542	23425576
+P00057642	23102780
+P00010742	22164153
+
+8.
+5	150933
+1	140378
+8	113925
+11	24287
+2	23864
+6	20466
+3	20213
+4	11753
+16	9828
+15	6290
+13	5549
+10	5125
+12	3947
+7	3721
+18	3125
+20	2550
+19	1603
+14	1523
+17	578
+9	410
+
+4	72308
+0	69638
+7	59133
+1	47426
+17	40043
+20	33562
+12	31179
+14	27309
+2	26588
+16	25371
+6	20355
+3	17650
+10	12930
+5	12177
+15	12165
+11	11586
+19	8461
+13	7728
+18	6622
+9	6291
+8	1546
+9.
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="26-35" GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+5	61473
+1	58249
+8	44256
+11	9874
+2	8928
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="36-45" GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+5	29377
+1	27648
+8	23296
+11	4953
+2	4912
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="0-17" GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+5	4330
+1	3585
+8	2258
+3	1200
+2	805
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE age="55+" GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+8	6208
+5	5367
+1	4411
+2	905
+6	862
+
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE gender="F" GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+5	41961
+8	33558
+1	24831
+3	6006
+2	5658
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE gender="M" GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+1	115547
+5	108972
+8	80367
+11	19548
+2	18206
+
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE occupation=4 GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+5	20459
+1	19238
+8	13830
+3	3306
+11	3192
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE occupation=0 GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+5	18985
+1	17643
+8	14087
+11	3752
+2	2971
+SELECT product_category_1, COUNT(*) AS catCount FROM blackfriday WHERE occupation=7 GROUP BY product_category_1 ORDER BY catCount DESC LIMIT 5;
+1	16037
+5	15619
+8	12620
+2	2511
+11	2412

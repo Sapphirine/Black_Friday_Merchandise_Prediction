@@ -1,0 +1,138 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(formattable)
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(animation)
+library(stringr)
+library(gridExtra)
+data=read.csv(file="data/train.csv")
+
+```
+###Data preprocessing
+```{r}
+data$Purchase <- suppressWarnings(as.numeric(data$Purchase))
+data$Product_Category_1 <- suppressWarnings(as.numeric(data$Product_Category_1))
+data$Product_Category_2 <- suppressWarnings(as.numeric(data$Product_Category_2))
+data$Product_Category_3 <- suppressWarnings(as.numeric(data$Product_Category_3))
+data$Product_Category_1[which(is.na(data$Product_Category_1))] <- 0
+data$Product_Category_2[which(is.na(data$Product_Category_2))] <- 0
+data$Product_Category_3[which(is.na(data$Product_Category_3))] <- 0
+summary(data)
+```
+
+
+#Purchase distribution in different cities
+```{r}
+
+ggplot(data)+
+  geom_histogram(aes(x=Purchase, fill=City_Category), position='fill')
+
+```
+###Purchase distribution among age, occupation and gender
+```{r}
+ggplot(data)+
+  geom_bar( aes(x=Age, fill=Gender))
+
+ggplot(data)+
+  geom_histogram(binwidth = 500, aes(x=Purchase, fill=Gender))
+
+
+data$Occupation <- suppressWarnings(as.character(data$Occupation))
+
+ggplot(data)+
+  geom_histogram(binwidth = 500, aes(x=Purchase, fill=Occupation))
+
+
+ggplot(data)+
+  geom_density(binwidth = 500, aes(x=Purchase, fill=Gender))
+head(data)
+
+```
+###Divide purchase into 4 classes, Tier1 to Tier4 from large purchase amount to small
+```{r}
+Tier1<-filter(data, Purchase>=17500 )
+Tier1$Tier<-1
+
+Tier2<-filter(data, Purchase<17500 & Purchase>=10000)
+Tier2$Tier<-2
+
+Tier3<-filter(data, Purchase<10000 & Purchase>=5000 )
+Tier3$Tier<-3
+
+Tier4<-filter(data, Purchase<5000 )
+Tier4$Tier<-4
+
+cdata<-Reduce(function(x,y) merge(x, y, all=TRUE), list(Tier1, Tier2, Tier3, Tier4))
+head(cdata)
+
+```
+###Age distribution in 4 tiers
+```{r}
+ggplot(cdata) +
+  geom_histogram(binwidth=0.5, aes(x=Tier, fill=Age))
+```
+
+
+###The average number of product categories in 4 tiers
+```{r}
+head(Tier1)
+A=c(mean(Tier1$Product_Category_1), mean(Tier1$Product_Category_2), mean(Tier1$Product_Category_3))
+Tier_1 = c('Category 1', 'Category 2', 'Category 3')
+C = c('Tier1', 'Tier2', 'Tier3', 'Tier4')
+dt=data.frame(A,Tier_1)
+dt = dt[order(A, decreasing = TRUE),]
+ggplot(dt, aes(x = "", y = A, fill = Tier_1)) +
+  geom_bar(stat = "identity", width = 1) + 
+  coord_polar(theta = "y")
+
+A2=c(mean(Tier2$Product_Category_1), mean(Tier2$Product_Category_2), mean(Tier2$Product_Category_3))
+Tier_2 = c('Category 1', 'Category 2', 'Category 3')
+dt2=data.frame(A2,Tier_2)
+ggplot(dt2, aes(x = "", y = A2, fill = Tier_2)) +
+  geom_bar(stat = "identity", width = 1) + 
+  coord_polar(theta = "y")
+
+
+A3=c(mean(Tier3$Product_Category_1), mean(Tier3$Product_Category_2), mean(Tier3$Product_Category_3))
+Tier_3 = c('Category 1', 'Category 2', 'Category 3')
+dt3=data.frame(A3,Tier_3)
+ggplot(dt3, aes(x = "", y = A3, fill = Tier_3)) +
+  geom_bar(stat = "identity", width = 1) + 
+  coord_polar(theta = "y")
+
+A4=c(mean(Tier4$Product_Category_1), mean(Tier4$Product_Category_2), mean(Tier4$Product_Category_3))
+Tier_4 = c('Category 1', 'Category 2', 'Category 3')
+dt4=data.frame(A4,Tier_4)
+ggplot(dt4, aes(x = "", y = A4, fill = Tier_4)) +
+  geom_bar(stat = "identity", width = 1) + 
+  coord_polar(theta = "y")
+
+```
+###What are the top 10 most popular products?
+```{r}
+#sort(data$Product_ID)
+
+#Most popular iterms
+sort(table(data$Product_ID),decreasing=TRUE)[1:10]
+sort(table(data$Product_ID[which(data$Age=="26-35")]),decreasing=TRUE)[1:10]
+sort(table(Tier1$Product_ID),decreasing=TRUE)[1:10]
+sort(table(Tier2$Product_ID),decreasing=TRUE)[1:10]
+sort(table(Tier3$Product_ID),decreasing=TRUE)[1:10]
+sort(table(Tier4$Product_ID),decreasing=TRUE)[1:10]
+
+
+```
+
