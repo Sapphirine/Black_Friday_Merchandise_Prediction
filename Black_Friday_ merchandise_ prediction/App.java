@@ -36,63 +36,63 @@ public class App
     public static void main( String[] args )
     {
     	try {
-//    		HashSet<Integer> UIDs = new HashSet<Integer>(), PIDs = new HashSet<Integer>();
-//    		BufferedReader reader = new BufferedReader(new FileReader("data/uid.csv"));
-//    		String line = "";
-//    		while ((line = reader.readLine()) != null)
-//    	    {
-//    			UIDs.add(Integer.parseInt(line));
-//    	    }
-//    		reader.close();
-//    		
-//    		reader = new BufferedReader(new FileReader("data/pid.csv"));
-//    		line = "";
-//    		while ((line = reader.readLine()) != null)
-//    	    {
-//    			PIDs.add(Integer.parseInt(line));
-//    	    }
-//    		reader.close();
-//    		
-//    		PrintWriter writer = new PrintWriter("data/user_recommender.txt", "UTF-8");
+   		HashSet<Integer> UIDs = new HashSet<Integer>(), PIDs = new HashSet<Integer>();
+   		BufferedReader reader = new BufferedReader(new FileReader("data/uid.csv"));
+   		String line = "";
+   		while ((line = reader.readLine()) != null)
+   	    {
+   			UIDs.add(Integer.parseInt(line));
+   	    }
+   		reader.close();
+   		
+   		reader = new BufferedReader(new FileReader("data/pid.csv"));
+   		line = "";
+   		while ((line = reader.readLine()) != null)
+   	    {
+   			PIDs.add(Integer.parseInt(line));
+   	    }
+   		reader.close();
+   		
+   		PrintWriter writer = new PrintWriter("data/user_recommender.txt", "UTF-8");
     		
     		DataModel model = new FileDataModel(new File("data/data.csv"));
 
-//			// User-based 
-//			UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-//			UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
-//			UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
-//			for(Integer uid: UIDs) {
-//				List<RecommendedItem> recommendations = recommender.recommend(uid,5);
-//				writer.println("User: " + uid);
-//				writer.flush();
-//				for (RecommendedItem recommendation : recommendations) {
-//					writer.println(recommendation + " ");
-//					writer.flush();
-//				}
-//				writer.println();
-//				writer.println();
-//				writer.flush();
-//			}
-//			writer.close();
-//			
-//			// Item-based
-//			ItemSimilarity sim = new LogLikelihoodSimilarity(model);
-//			GenericItemBasedRecommender ibr = new GenericItemBasedRecommender(model, sim);
-//			
-//			writer = new PrintWriter("data/item_recommender.txt", "UTF-8");
-//			for (LongPrimitiveIterator items = model.getItemIDs(); items.hasNext(); ) {
-//				long itemId = items.nextLong();
-//				writer.println("Item id: " + itemId);
-//				writer.flush();
-//				List<RecommendedItem> recomds = ibr.mostSimilarItems(itemId, 5);
-//				
-//				for(RecommendedItem recommendedItem: recomds ) {
-//					writer.println("productID = " + recommendedItem.getItemID() + ", similarity = " + recommendedItem.getValue());
-//					writer.flush();
-//				}
-//				writer.println();
-//				writer.println();
-//			}
+			// User-based 
+			UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
+			UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
+			UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+			for(Integer uid: UIDs) {
+				List<RecommendedItem> recommendations = recommender.recommend(uid,5);
+				writer.println("User: " + uid);
+				writer.flush();
+				for (RecommendedItem recommendation : recommendations) {
+					writer.println(recommendation + " ");
+					writer.flush();
+				}
+				writer.println();
+				writer.println();
+				writer.flush();
+			}
+			writer.close();
+			
+			// Item-based
+			ItemSimilarity sim = new LogLikelihoodSimilarity(model);
+			GenericItemBasedRecommender ibr = new GenericItemBasedRecommender(model, sim);
+			
+			writer = new PrintWriter("data/item_recommender.txt", "UTF-8");
+			for (LongPrimitiveIterator items = model.getItemIDs(); items.hasNext(); ) {
+				long itemId = items.nextLong();
+				writer.println("Item id: " + itemId);
+				writer.flush();
+				List<RecommendedItem> recomds = ibr.mostSimilarItems(itemId, 5);
+				
+				for(RecommendedItem recommendedItem: recomds ) {
+					writer.println("productID = " + recommendedItem.getItemID() + ", similarity = " + recommendedItem.getValue());
+					writer.flush();
+				}
+				writer.println();
+				writer.println();
+			}
     		
     		class MyRecommenderBuilder implements RecommenderBuilder {
 
